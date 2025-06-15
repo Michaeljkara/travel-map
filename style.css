@@ -1,0 +1,47 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+#legend {
+  position: absolute;
+  background: white;
+  padding: 10px;
+  font-family: sans-serif;
+  font-size: 14px;
+  border-radius: 5px;
+  bottom: 175px;
+  left: 100px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+}
+
+.legend-color {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.visited { background-color: #2274A5; }
+.not-visited { background-color: #CCCCCC; }
+.home { background-color: #4CAF50; }
+
+#counter {
+  position: absolute;
+  bottom: 100px;
+  left: 100px;
+  background: white;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+  font-family: sans-serif;
+}
+
