@@ -29,9 +29,8 @@ body {
   vertical-align: middle;
 }
 
-.visited { background-color: #2274A5; }
-.not-visited { background-color: #CCCCCC; }
-.home { background-color: #4CAF50; }
+.visited { background-color:#D28C28 }
+.not-visited { background-color: #E9D8B7 }
 
 #counter {
   position: absolute;

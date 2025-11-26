@@ -5,245 +5,300 @@ const map = new mapboxgl.Map({
   style: 'mapbox://styles/michaeljkara/cmbmpgyyi00bl01qq1npreyty',
   center: [0, 20],
   zoom: 1.5,
-  projection: 'mercator'
+  projection: 'globe'
 });
 
-// 🌍 Visited countries data
-const visitedInfo = {
-  "Costa Rica": {
-    status: "Visited Spring 2022",
-    popup: "Been three times. La Fortuna, Puerto Viejo, and most recently, Tamarindo. Turns out I'm a great surfer."
-  },
-  "United States of America": {
-    status: "Home Base",
-    popup: "Born and Raised, and currently live here. USA USA USA RAAAAA"
-  },
-  "Bahamas": {
-    status: "Visited Summer 2018",
-    popup: "First country I've ever visited. Beautiful island, and great beaches"
-  },
-  "Singapore": {
-    status: "Visted Fall 2022",
-    popup: "Saw the Pearl. Coolest airport I've ever seen."
-  },
-  "Philippines": {
-    status: "Visited Fall 2022",
-    popup: "Went for Miss Earth 2022, and visited El Nido. Incredible country"
-  },
-  "Taiwan": {
-    status: "Visited Fall 2022",
-    popup: "First visited in 2022, but returned in 2023 for Asian Environmental Summit. Boba tea here is top tier."
-  },
-  "Estonia": {
-    status: "Visited Winter 2023",
-    popup: "First european country. Went for Let's Do It World 2023 confernece. Old town is incredible."
-  },
-   "Canada": {
-    status: "Visited Summer 2023",
-    popup: "Visited for 3 hours just to jump out of a plane. Great view."
-  },
-  "Japan": {
-    status: "Visited Fall 2023",
-    popup: "Visited for Miss International 2023. Kyoto is my favorite city so far."
-  },
-  "United Kingdom": {
-    status: "Visited Winter 2023",
-    popup: "Went on a top secret mission."
-  },
-  "Austria": {
-    status: "Visited Spring 2024",
-    popup: "Layover on the way to Armenia. Did a cleanup off of the Danube then fell asleep on a massage chair in the airport."
-  },
-  "Armenia": {
-    status: "Visited Spring 2024",
-    popup: "Went for Earth Day 2024. Explored the country, reunited with my family, picked up trash on Lake Yerevan, and hitchhiked across the country."
-  },
-  "Netherlands": {
-    status: "Visited Fall 2024",
-    popup: "Started a short backpacking trip here and had my chain jacked. Still 10/10 and can't wait to go back."
-  },
-  "Belgium": {
-    status: "Visited Fall 2024",
-    popup: "On the way to Lux, and enjoyed a few stops through the country on a very beautiful train."
-  },
-  "Luxembourg": {
-    status: "Visited Fall 2024",
-    popup: "Visited a friend, and explored the incredible city of Luxembourg. It's like a giant castle they turned into a city. Absolutely gorgeous."
-  },
-  "Spain": {
-    status: "Visited Fall 2024",
-    popup: "Dancing and whole lot of Jamón Serrano."
-  },
-  "Andorra": {
-    status: "Visted Fall 2024",
-    popup: "Found out about this country when looking at a map one day. Who knew there was a country between Spain and France. I had to visit. Amazing hiking, and incredibly nice people. Highly recommend."
-  },
-  "Mexico": {
-    status: "Visited Winter 2025",
-    popup: "Short weekend trip filled mostly with dancing to salsa. Also the food is as good as it gets, I think."
-  },
-  "Nicaragua": {
-    status: "Visited Summer 2025",
-    popup: "Crossed the border from Costa Rica, drove bikes across Ometepe Island, and then boarded down a Volcano in Leon."
-  },
+// 🌍 2026 Journey Countries (story map)
+const journeyCountries = [
+  "United States of America",
+  "United Kingdom",
+  "Norway",
+  "France",
+  "Luxembourg",
+  "Armenia"
+  // Add new ones here as the journey continues
+];
 
-};
+// Curved arc generator using Turf's greatCircle (MUCH smoother, no kinks)
+function generateArc(start, end) {
+  const gc = turf.greatCircle(start, end, {
+    npoints: 500,  // smoothness
+    offset: 0.4     // arc height; increase for more dramatic curve
+  });
+  return gc.geometry.coordinates;
+}
 
 map.on('load', () => {
-  // ✅ Load countries GeoJSON
+  // ----------------------------------------
+  // LOAD COUNTRIES
+  // ----------------------------------------
   map.addSource('custom-countries', {
     type: 'geojson',
-    data: 'data/custom.geo.json' // Make sure this file exists in that path
+    data: 'data/custom.geo.json'
   });
 
-  // 🎨 Country fill colors
   map.addLayer({
     id: 'custom-country-fills',
     type: 'fill',
     source: 'custom-countries',
-    layout: {},
     paint: {
       'fill-color': [
         'case',
-        ['==', ['get', 'name'], 'United States of America'], '#4CAF50',
-        ['in', ['get', 'name'], ['literal', Object.keys(visitedInfo)]], '#2274A5',
+        ['in', ['get', 'name'], ['literal', journeyCountries]],  'rgba(210,140,40,0.22)',
         'rgba(0,0,0,0)'
       ],
-      'fill-opacity': 0.4
+      'fill-opacity': 1
     }
   });
 
-  // 🟫 Borders
   map.addLayer({
     id: 'custom-country-borders',
     type: 'line',
     source: 'custom-countries',
-    layout: {},
     paint: {
-      'line-color': '#083D77',
+      'line-color': 'rgba(150,100,40,0.4)',
       'line-width': 0.5
     }
   });
 
-  // 🐭 Hover popup
+  // ----------------------------------------
+  // COUNTRY HOVER POPUP
+  // ----------------------------------------
   const hoverPopup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
 
   map.on('mousemove', 'custom-country-fills', (e) => {
     const feature = e.features[0];
-    const name = feature.properties.name || feature.properties.ADMIN || 'Unknown';
-    const visited = visitedInfo[name];
-    const status = visited ? visited.status : 'Not Visited';
+    const name = feature.properties.name || 'Unknown';
+    const onJourney = journeyCountries.includes(name);
 
-    hoverPopup.setLngLat(e.lngLat).setHTML(`<strong>${name}</strong><br>${status}`).addTo(map);
+    hoverPopup
+      .setLngLat(e.lngLat)
+      .setHTML(`<strong>${name}</strong><br>${onJourney ? 'On my 2026 journey' : 'Not on this journey (yet)'}`)
+      .addTo(map);
   });
 
   map.on('mouseleave', 'custom-country-fills', () => hoverPopup.remove());
 
-  // 🖱 Click for visited popups
-  map.on('click', 'custom-country-fills', (e) => {
-    const feature = e.features[0];
-    const name = feature.properties.name || feature.properties.ADMIN || 'Unknown';
-    const visited = visitedInfo[name];
-    if (!visited) return;
+  document.getElementById('counter').innerText =
+    `🌍 2026 Journey Countries: ${journeyCountries.length}`;
 
-    map.flyTo({ center: e.lngLat, zoom: 4 });
-
-    new mapboxgl.Popup()
-      .setLngLat(e.lngLat)
-      .setHTML(`<h3>${name}</h3><p>${visited.popup}</p>`)
-      .addTo(map);
-  });
-
-  // ✅ Display number of visited countries
-  document.getElementById('counter').innerText = `🌍 Countries visited: ${Object.keys(visitedInfo).length}`;
-
-  // ✅ Add current location source
+  // ----------------------------------------
+  // CURRENT LOCATION PULSING DOT
+  // ----------------------------------------
   map.addSource('current-location', {
     type: 'geojson',
     data: {
       type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [-98.491142, 29.4243492] // San Antonio
-          },
-          properties: {}
-        }
-      ]
+      features: [{
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [-82.5748, 27.4989] }
+      }]
     }
   });
 
-  // ✅ Define pulsing dot
   const size = 125;
-
   const pulsingDot = {
     width: size,
     height: size,
     data: new Uint8Array(size * size * 4),
-
     onAdd: function () {
       const canvas = document.createElement('canvas');
-      canvas.width = this.width;
-      canvas.height = this.height;
+      canvas.width = size;
+      canvas.height = size;
       this.context = canvas.getContext('2d');
-      this.map = map;
-        this.image = {
-    width: this.width,
-    height: this.height,
-    data: new Uint8Array(this.width * this.height * 4)
-        };
     },
-
     render: function () {
       const duration = 2000;
       const t = (performance.now() % duration) / duration;
+      const radius = (size / 2) * 0.3;
+      const outerRadius = (size / 2) * 0.7 * t + radius;
+      const ctx = this.context;
 
-      const radius = (this.width / 2) * 0.3;
-      const outerRadius = (this.width / 2) * 0.7 * t + radius;
-      const context = this.context;
+      ctx.clearRect(0, 0, size, size);
 
-      context.clearRect(0, 0, this.width, this.height);
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, outerRadius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(176,46,12, ${1 - t})`;
+      ctx.fill();
 
-      // Outer ring
-      context.beginPath();
-      context.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2);
-      context.fillStyle = `rgba(34, 197, 94, ${1 - t})`; // Outer green
-      context.shadowColor = 'rgba(34, 197, 94, 0.4)';
-      context.shadowBlur = 10;
-      context.fill();
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#B02E0C';
+      ctx.strokeStyle = 'rgba(70,30,15,1)';
+      ctx.lineWidth = 2;
+      ctx.fill();
+      ctx.stroke();
 
-      // Inner dot
-      context.beginPath();
-      context.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
-      context.fillStyle = 'rgba(34, 197, 94, 1)'; // Inner green
-      context.strokeStyle = '#ffffff';
-      context.lineWidth = 2 + 2 * (1 - t);
-      context.fill();
-      context.stroke();
-
-      const imageData = context.getImageData(0, 0, size, size);
+      const imageData = ctx.getImageData(0, 0, size, size);
       this.data.set(imageData.data);
 
-      this.map.triggerRepaint();
+      map.triggerRepaint();
       return true;
     }
   };
 
-  // ✅ Add image and layer
   map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
 
-map.addLayer({
-  id: 'current-location-dot',
-  type: 'symbol',
-  source: 'current-location',
-  layout: {
-    'icon-image': 'pulsing-dot',
-    'icon-size': 0.5 // Adjust this if it's too small or large
+  map.addLayer({
+    id: 'current-location-dot',
+    type: 'symbol',
+    source: 'current-location',
+    layout: {
+      'icon-image': 'pulsing-dot',
+      'icon-size': 0.5
+    }
+  });
+
+  // ----------------------------------------
+  // JOURNEY LINES (arcs)
+  // ----------------------------------------
+  const sa = [-98.4936, 29.4241];     // San Antonio
+const atx = [-97.7431, 30.2672];    // Austin
+const fl  = [-82.5748, 27.4989];    // Bradenton, FL
+const newcastle = [-1.6178, 54.9783];
+
+// Generate curved arcs
+const sa_to_atx_arc = generateArc(sa, atx);
+const atx_to_fl_arc = generateArc(atx, fl);
+const atx_to_newcastle_arc = generateArc(fl, newcastle);
+
+// Add source
+map.addSource('journey-line', {
+  type: 'geojson',
+  data: {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: sa_to_atx_arc
+        },
+        properties: { name: "San Antonio → Austin" }
+      },
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: atx_to_fl_arc
+        },
+        properties: { name: "Austin → Florida" }
+      },
+      {
+  type: 'Feature',
+  geometry: {
+    type: 'LineString',
+    coordinates: atx_to_newcastle_arc
+  },
+  properties: { name: "Florida → Newcastle" }
+}
+    ]
   }
-  
+});
+// Drop Shadow for Line Layer
+map.addLayer({
+  id: 'journey-line-shadow',
+  type: 'line',
+  source: 'journey-line',
+  layout: {
+    'line-cap': 'round',
+    'line-join': 'round'
+  },
+  paint: {
+    'line-color': 'rgba(0, 0, 0, 0.45)',
+    'line-width': 8,
+    'line-blur': 6,
+    'line-opacity': .8
+  }
+});
+
+// ----------------------------
+// Main Journey Line (Glowing)
+// ----------------------------
+map.addLayer({
+  id: 'journey-line-layer',
+  type: 'line',
+  source: 'journey-line',
+  layout: {
+    'line-cap': 'round',
+    'line-join': 'round'
+  },
+  paint: {
+    'line-color': '#0A84FF',   // deep blue base color
+    'line-width': 3.5,
+    'line-opacity': 1,
+    'line-blur': 1.3
+  }
+});
+
+  // ----------------------------------------
+  // JOURNEY STOP POPUPS
+  // ----------------------------------------
+  const stops = [
+    {
+      coords: sa,
+      title: "Start of the Journey — San Antonio",
+      description: `
+        Everything starts here. I lived with my sister, saved money, trained,
+        and got ready for a year of traveling the world.
+      `,
+      popupImage: "photos/photoSA.jpg",
+      icon: "icons/sa.JPG"
+    },
+     {
+      coords: atx,
+      title: "Celebrating the New Years Right",
+      description: `
+        Beginning the journey in with my first stop in Austin, Texas to celebrate the beginning of 2026 right. 
+        <br><br>
+        <a href="https://medium.com/@michaelkarapetian/your-article-slug"
+       target="_blank"
+       style="color:#B87300; font-weight:bold; text-decoration:underline;">
+       Read the full story on Medium →
+       </a>
+      `,
+      popupImage: "photos/Austintest.JPG",
+      icon: "icons/austintest.JPG"
+    }
+  ];
+
+  stops.forEach((stop) => {
+    // Thumbnail Icon Styles 
+    const el = document.createElement('div');
+    el.className = 'photo-marker';
+    el.style.width = '40px';
+    el.style.height = '40px';
+    el.style.borderRadius = '50%';
+    el.style.backgroundImage = `url(${stop.icon})`;
+    el.style.backgroundSize = 'cover';
+    el.style.border = '3px solid black';
+    el.style.cursor = 'pointer';
+
+    el.addEventListener('click', () => {
+  map.flyTo({
+    center: stop.coords,
+    zoom: 6,           // adjust how close you want it
+    speed: 0.8,        // smooth fly
+    curve: 1.4,        // prettier animation
+    essential: true
   });
 });
+
+    // Add marker to map
+    new mapboxgl.Marker(el)
+      .setLngLat(stop.coords)
+      .setPopup(
+        new mapboxgl.Popup().setHTML(`
+          <div style="max-width: 260px;">
+            <h3>${stop.title}</h3>
+            <img src="${stop.popupImage}" style="width:100%; border-radius:10px; margin-bottom:8px;" />
+            <p>${stop.description}</p>
+          </div>
+        `)
+      )
+      .addTo(map);
+  });
+});
+
 
 
