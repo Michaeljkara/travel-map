@@ -242,7 +242,7 @@ map.addLayer({
         Everything starts here. I lived with my sister, saved money, trained,
         and got ready for a year of traveling the world.
       `,
-      popupImage: "photos/photoSA.jpg",
+      popupImage: "photos/photoSA.JPG",
       icon: "icons/sa.JPG"
     },
      {
@@ -251,7 +251,7 @@ map.addLayer({
       description: `
         Beginning the journey in with my first stop in Austin, Texas to celebrate the beginning of 2026 right. 
         <br><br>
-        <a href="https://medium.com/@michaelkarapetian/your-article-slug"
+        <a href="https://medium.com/@michaelkarapetian/"
        target="_blank"
        style="color:#B87300; font-weight:bold; text-decoration:underline;">
        Read the full story on Medium →
