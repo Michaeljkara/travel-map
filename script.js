@@ -11,11 +11,6 @@ const map = new mapboxgl.Map({
 // 🌍 2026 Journey Countries (story map)
 const journeyCountries = [
   "United States of America",
-  "United Kingdom",
-  "Norway",
-  "France",
-  "Luxembourg",
-  "Armenia"
   // Add new ones here as the journey continues
 ];
 
@@ -154,12 +149,14 @@ map.on('load', () => {
   // ----------------------------------------
   const sa = [-98.4936, 29.4241];     // San Antonio
 const atx = [-97.7431, 30.2672];    // Austin
+const gnv = [-82.3248, 29.6516]; // Gainesville, FL
 const fl  = [-82.5748, 27.4989];    // Bradenton, FL
 const newcastle = [-1.6178, 54.9783];
 
 // Generate curved arcs
 const sa_to_atx_arc = generateArc(sa, atx);
-const atx_to_fl_arc = generateArc(atx, fl);
+const atx_to_gnv_arc = generateArc(atx, gnv);
+const gnv_to_fl_arc = generateArc(gnv, fl);
 const atx_to_newcastle_arc = generateArc(fl, newcastle);
 
 // Add source
@@ -180,9 +177,17 @@ map.addSource('journey-line', {
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates: atx_to_fl_arc
+          coordinates: atx_to_gnv_arc
         },
-        properties: { name: "Austin → Florida" }
+        properties: { name: "Austin → Gainesville" }
+      },
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: gnv_to_fl_arc
+        },
+        properties: { name: "Gainesville → Florida" }
       },
       {
   type: 'Feature',
@@ -239,8 +244,7 @@ map.addLayer({
       coords: sa,
       title: "Start of the Journey — San Antonio",
       description: `
-        Everything starts here. I lived with my sister, saved money, trained,
-        and got ready for a year of traveling the world.
+        The journey starts here. Said goodbye to my family and friends, packed my car with all of my belongings and began a road trip across the country back to Florida. 
       `,
       popupImage: "photos/photoSA.JPG",
       icon: "icons/sa.JPG"
@@ -251,14 +255,23 @@ map.addLayer({
       description: `
         Beginning the journey in with my first stop in Austin, Texas to celebrate the beginning of 2026 right. 
         <br><br>
-        <a href="https://medium.com/@michaelkarapetian/"
+        <a href="https://medium.com/@michaeljkarapetian/"
        target="_blank"
        style="color:#B87300; font-weight:bold; text-decoration:underline;">
-       Read the full story on Medium →
+       Check out my Medium to read more of my adventures. 
        </a>
       `,
-      popupImage: "photos/Austintest.JPG",
-      icon: "icons/austintest.JPG"
+      popupImage: "photos/PhotoAustin.JPG",
+      icon: "icons/IconAustin.JPG"
+    },
+    {
+      coords: gnv,
+      title: "Gainesville, Florida. A Stop on the way to Tampa",
+      description: `
+        Stayed with our friend Shadee who cooked us a delicious Persian meal. Perfect after driving for hours on end.  
+      `,
+      popupImage: "photos/gnvphoto.JPG",
+      icon: "icons/gnvicon.JPG"
     }
   ];
 
