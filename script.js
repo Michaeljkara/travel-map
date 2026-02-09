@@ -10,7 +10,7 @@ const map = new mapboxgl.Map({
 
 // 🌍 2026 Journey Countries (story map)
 const journeyCountries = [
-  "United States of America",
+  "United States of America", "United Kingdom","Norway", "Germany", "Luxembourg", "Belgium", "France", "Armenia"
   // Add new ones here as the journey continues
 ];
 
@@ -66,10 +66,6 @@ map.on('load', () => {
     const name = feature.properties.name || 'Unknown';
     const onJourney = journeyCountries.includes(name);
 
-    hoverPopup
-      .setLngLat(e.lngLat)
-      .setHTML(`<strong>${name}</strong><br>${onJourney ? 'On my 2026 journey' : 'Not on this journey (yet)'}`)
-      .addTo(map);
   });
 
   map.on('mouseleave', 'custom-country-fills', () => hoverPopup.remove());
@@ -86,7 +82,7 @@ map.on('load', () => {
       type: 'FeatureCollection',
       features: [{
         type: 'Feature',
-        geometry: { type: 'Point', coordinates: [-82.5748, 27.4989] }
+        geometry: { type: 'Point', coordinates: [44.5152, 40.1872] }
       }]
     }
   });
@@ -151,13 +147,34 @@ map.on('load', () => {
 const atx = [-97.7431, 30.2672];    // Austin
 const gnv = [-82.3248, 29.6516]; // Gainesville, FL
 const fl  = [-82.5748, 27.4989];    // Bradenton, FL
-const newcastle = [-1.6178, 54.9783];
+const miami = [-80.1918, 25.7617];  // Miami, FL
+const newcastle = [-1.6178, 54.9783]; // Newcastle, UK
+const voss = [6.4147, 60.6287];     // Voss, Norway
+const london = [-0.1276, 51.5074];  // London, UK
+const berlin = [13.4050, 52.5200];  // Berlin, Germany
+const lux = [6.1319, 49.6116];      // Luxembourg City, Luxembourg
+const belgium = [5.8199, 49.6825];  // Brussels, Belgium
+const paris = [2.3522, 48.8566];    // Paris, France
+const yerevan = [44.5152, 40.1872]; // Yerevan, Armenia
+
+
 
 // Generate curved arcs
 const sa_to_atx_arc = generateArc(sa, atx);
 const atx_to_gnv_arc = generateArc(atx, gnv);
 const gnv_to_fl_arc = generateArc(gnv, fl);
-const atx_to_newcastle_arc = generateArc(fl, newcastle);
+const fl_to_miami_arc = generateArc(fl, miami);
+const miami_to_fl_arc = generateArc(miami, fl);
+const fl_to_newcastle_arc = generateArc(fl, newcastle);
+const newcastle_to_voss_arc = generateArc(newcastle, voss);
+const voss_to_london_arc = generateArc(voss, london);
+const london_to_newcastle_arc = generateArc(london, newcastle);
+const newcastle_to_berlin_arc = generateArc(newcastle, berlin);
+const berlin_to_lux_arc = generateArc(berlin, lux);
+const lux_to_belgium_arc = generateArc(lux, belgium);
+const belgium_to_lux_arc = generateArc(belgium, lux);
+const lux_to_paris_arc = generateArc(lux, paris);
+const paris_to_yerevan_arc = generateArc(paris, yerevan);
 
 // Add source
 map.addSource('journey-line', {
@@ -167,36 +184,79 @@ map.addSource('journey-line', {
     features: [
       {
         type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: sa_to_atx_arc
-        },
+        geometry: { type: 'LineString', coordinates: sa_to_atx_arc },
         properties: { name: "San Antonio → Austin" }
       },
       {
         type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: atx_to_gnv_arc
-        },
+        geometry: { type: 'LineString', coordinates: atx_to_gnv_arc },
         properties: { name: "Austin → Gainesville" }
       },
       {
         type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: gnv_to_fl_arc
-        },
-        properties: { name: "Gainesville → Florida" }
+        geometry: { type: 'LineString', coordinates: gnv_to_fl_arc },
+        properties: { name: "Gainesville → Bradenton" }
       },
       {
-  type: 'Feature',
-  geometry: {
-    type: 'LineString',
-    coordinates: atx_to_newcastle_arc
-  },
-  properties: { name: "Florida → Newcastle" }
-}
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: fl_to_miami_arc },
+        properties: { name: "Bradenton → Miami" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: miami_to_fl_arc },
+        properties: { name: "Miami → Bradenton" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: fl_to_newcastle_arc },
+        properties: { name: "Bradenton → Newcastle" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: newcastle_to_voss_arc },
+        properties: { name: "Newcastle → Voss" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: voss_to_london_arc },
+        properties: { name: "Voss → London" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: london_to_newcastle_arc },
+        properties: { name: "London → Newcastle" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: newcastle_to_berlin_arc },
+        properties: { name: "Newcastle → Berlin" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: berlin_to_lux_arc },
+        properties: { name: "Berlin → Luxembourg" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: lux_to_belgium_arc },
+        properties: { name: "Luxembourg → Belgium" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: belgium_to_lux_arc },
+        properties: { name: "Belgium → Luxembourg" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: lux_to_paris_arc },
+        properties: { name: "Luxembourg → Paris" }
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: paris_to_yerevan_arc },
+        properties: { name: "Paris → Yerevan" }
+      }
     ]
   }
 });
@@ -239,41 +299,155 @@ map.addLayer({
   // ----------------------------------------
   // JOURNEY STOP POPUPS
   // ----------------------------------------
-  const stops = [
-    {
-      coords: sa,
-      title: "Start of the Journey — San Antonio",
-      description: `
-        The journey starts here. Said goodbye to my family and friends, packed my car with all of my belongings and began a road trip across the country back to Florida. 
-      `,
-      popupImage: "photos/photoSA.JPG",
-      icon: "icons/sa.JPG"
-    },
-     {
-      coords: atx,
-      title: "Celebrating the New Years Right",
-      description: `
-        Beginning the journey in with my first stop in Austin, Texas to celebrate the beginning of 2026 right. 
-        <br><br>
-        <a href="https://medium.com/@michaeljkarapetian/"
+const stops = [
+{
+  coords: sa,
+  title: "Start of the Journey — San Antonio",
+  dates: "📍Dec 2025",
+  description: `
+    The journey starts here. Said goodbye to my family and friends,
+    packed my car with all of my belongings and began a road trip
+    across the country back to Florida.
+  `,
+  popupImage: "photos/photoSA.JPG",
+  icon: "icons/sa.JPG"
+},
+
+{
+  coords: atx,
+  title: "Celebrating the New Years Right in Austin, TX",
+  dates: "📍Jan 1–2, 2026",
+  description: `
+    Beginning the journey with my first stop in Austin, Texas
+    to celebrate the beginning of 2026 right.
+    <br><br>
+    <a href="https://medium.com/@michaeljkarapetian/"
        target="_blank"
        style="color:#B87300; font-weight:bold; text-decoration:underline;">
-       Check out my Medium to read more of my adventures. 
-       </a>
-      `,
-      popupImage: "photos/PhotoAustin.JPG",
-      icon: "icons/IconAustin.JPG"
-    },
-    {
-      coords: gnv,
-      title: "Gainesville, Florida. A Stop on the way to Tampa",
-      description: `
-        Stayed with our friend Shadee who cooked us a delicious Persian meal. Perfect after driving for hours on end.  
-      `,
-      popupImage: "photos/gnvphoto.JPG",
-      icon: "icons/gnvicon.JPG"
-    }
-  ];
+       Check out my Medium to read more of my adventures.
+    </a>
+  `,
+  popupImage: "photos/PhotoAustin.JPG",
+  icon: "icons/IconAustin.JPG"
+},
+
+{
+  coords: gnv,
+  title: "Gainesville, Florida — Stop on the way to Tampa",
+  dates: "📍Jan 2-3, 2026",
+  description: `
+    Stayed with our friend Shadee who cooked us a delicious Persian meal.
+    Perfect after driving for hours on end.
+  `,
+  popupImage: "photos/gnvphoto.JPG",
+  icon: "icons/gnvicon.JPG"
+},
+
+{
+  coords: fl,
+  title: "Bradenton / Tampa Area",
+  dates: "📍Jan 3-23, 2026",
+  description: `
+    TODO: Add description for your Florida stay.
+  `,
+  popupImage: "photos/fl.jpg",
+  icon: "icons/flcopy.jpg"
+},
+
+{
+  coords: miami,
+  title: "Miami",
+  dates: "📍Jan 17-19, 2026",
+  description: `
+    Short stop with an old friend before I left for a year.
+    Part of the goodbye tour.
+  `,
+  popupImage: "photos/miami.jpeg",
+  icon: "icons/miamicopy.jpeg"
+},
+
+{
+  coords: newcastle,
+  title: "Newcastle, UK",
+  dates: "📍Jan 24 - Feb 4, 2026",
+  description: `
+    The trip officially starts! Visited family in Newcastle, UK
+    to start the trip. Cold and rainy but a ton of fun.
+  `,
+  popupImage: "photos/morpeth.jpg",
+  icon: "icons/morpethcopy.jpg"
+},
+
+{
+  coords: voss,
+  title: "Voss, Norway",
+  dates: "📍Jan 27 - 30, 2026",
+  description: `
+    Traveled to Voss, Norway to snowboard for the first time.
+    Lake Vangsvatnet was completely frozen and we walked across it.
+  `,
+  popupImage: "photos/norway.jpg",
+  icon: "icons/norwaycopy.jpg"
+},
+
+{
+  coords: london,
+  title: "London, UK",
+  dates: "📍Jan 30 - Feb 1, 2026",
+  description: `
+    First time in London exploring a city founded in 47 AD,
+    with history everywhere you look.
+  `,
+  popupImage: "photos/london.jpg",
+  icon: "icons/londoncopy.jpg"
+},
+
+{
+  coords: berlin,
+  title: "Berlin, Germany",
+  dates: "📍Feb 4 - 7 2026",
+  description: `
+    Explored the city through ice and snow.
+    Seeing kids sledding where the Berlin Wall once stood was unforgettable.
+  `,
+  popupImage: "photos/berlin.jpg",
+  icon: "icons/berlincopy.jpg"
+},
+
+{
+  coords: lux,
+  title: "Luxembourg City",
+  dates: "📍Feb 7 - 10, 2026",
+  description: `
+    Visited an old friend. One giant castle disguised as a city.
+    Easily one of my favorite places.
+  `,
+  popupImage: "photos/lux.jpg",
+  icon: "icons/luxcopy.jpg"
+},
+
+{
+  coords: belgium,
+  title: "Brussels, Belgium",
+  dates: "📍Feb 7 2026",
+  description: `
+    Crossed into Belgium for fries and metralletas.
+  `,
+  popupImage: "photos/belgium.jpg",
+  icon: "icons/belgiumcopy.jpg"
+},
+
+{
+  coords: paris,
+  title: "Paris, France",
+  dates: "📍Feb 10 - Feb 13, 2026",
+  description: `
+    Rested in Paris before officially heading to Armenia.
+  `,
+  popupImage: "photos/placeholder.jpg",
+  icon: "icons/placeholder.jpg"
+},
+];
 
   stops.forEach((stop) => {
     // Thumbnail Icon Styles 
@@ -304,6 +478,7 @@ map.addLayer({
         new mapboxgl.Popup().setHTML(`
           <div style="max-width: 260px;">
             <h3>${stop.title}</h3>
+            <h4>${stop.dates}</h4>
             <img src="${stop.popupImage}" style="width:100%; border-radius:10px; margin-bottom:8px;" />
             <p>${stop.description}</p>
           </div>
